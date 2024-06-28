@@ -47,6 +47,24 @@ impl ClPlayerManager {
         None
     }
 
+    pub async fn figure_out_active_session(&self) -> Option<String> {
+        let sessions = self.get_sessions_keys().await;
+        // loop through the sessions and figure out the active session
+        println!("{:?}", sessions);
+        for session in sessions {
+            println!("{:?}", session);
+            let player = self.get_session(session.clone()).await;
+            if let Some(player) = player {
+                let status = player.get_status().await;
+                if status.status == windows::Media::Control::GlobalSystemMediaTransportControlsSessionPlaybackStatus(4) {
+                    return Some(session);
+                }
+            }
+        }
+        None
+        /* `std::string::String` value */
+    }
+
     pub async fn update_system_session(&mut self) {
         self.player_manager.lock().await.update_system_session()
     }

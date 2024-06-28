@@ -109,10 +109,12 @@ impl Player {
             status: 'rt: {
                 if let Ok(playback_info) = playback_info.as_ref() {
                     if let Ok(status) = playback_info.PlaybackStatus() {
-                        break 'rt playback_status_to_string(status);
+                        println!("status in module{:?}", status);
+                        break 'rt status;
                     }
                 }
-                String::from("Unknown")
+                windows::Media::Control::GlobalSystemMediaTransportControlsSessionPlaybackStatus(0)
+                //String::from("Unknown")
             },
             is_loop: 'rt: {
                 if let Ok(playback_info) = playback_info.as_ref() {

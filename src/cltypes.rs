@@ -1,5 +1,5 @@
 use chrono::{DateTime, Utc};
-use windows::Storage::Streams::Buffer;
+use windows::Media::Control::GlobalSystemMediaTransportControlsSessionPlaybackStatus;
 
 use crate::types::{ArtData, Capabilities, Metadata, Position, Status};
 
@@ -92,7 +92,7 @@ impl From<Position> for ClPosition {
 pub struct ClStatus {
     pub metadata: Option<ClMetadata>,
     pub capabilities: ClCapabilities,
-    pub status: String,
+    pub status: GlobalSystemMediaTransportControlsSessionPlaybackStatus,
     pub is_loop: String,
     pub shuffle: bool,
     pub volume: f64, // tanto sta a -1 lmao
