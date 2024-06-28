@@ -1,3 +1,6 @@
+// code modified from https://github.com/NyaomiDEV/WinPlayer-Node/tree/ae41b8820196a3c92098252a2266ac13fc7cc1a9
+// license: MPL-2.0 https://www.mozilla.org/en-US/MPL/2.0/
+
 use std::{collections::HashMap, sync::Arc};
 use tokio::sync::{
     mpsc::{unbounded_channel, UnboundedReceiver, UnboundedSender},
@@ -12,7 +15,7 @@ use windows::{
     },
 };
 
-use crate::owo::player::Player;
+use crate::player::Player;
 
 #[allow(clippy::enum_variant_names)]
 pub enum ManagerEvent {

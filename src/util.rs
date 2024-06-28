@@ -1,3 +1,5 @@
+// code modified from https://github.com/NyaomiDEV/WinPlayer-Node/tree/ae41b8820196a3c92098252a2266ac13fc7cc1a9
+// license: MPL-2.0 https://www.mozilla.org/en-US/MPL/2.0/
 use std::time::Duration;
 
 use chrono::{DateTime, TimeZone, Utc};
@@ -18,7 +20,7 @@ use windows::{
     System,
 };
 
-use crate::owo::types::{ArtData, Capabilities, Metadata, Position};
+use crate::types::{ArtData, Capabilities, Metadata, Position};
 
 // I don't want to deal with libraries
 fn shitty_windows_epoch_to_utc(shitty_time: i64) -> Option<DateTime<Utc>> {
