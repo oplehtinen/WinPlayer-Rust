@@ -4,6 +4,7 @@ use crate::{
 };
 use std::sync::Arc;
 use tokio::sync::Mutex;
+use tokio::time::{self, Duration};
 pub struct ClPlayer {
     player: Arc<Mutex<Player>>,
 }
@@ -14,13 +15,20 @@ impl ClPlayer {
     }
 
     pub async fn poll_next_event(&mut self) -> String {
-        match self.player.lock().await.poll_next_event().await {
-            Some(PlayerEvent::PlaybackInfoChanged) => String::from("PlaybackInfoChanged"),
-            Some(PlayerEvent::MediaPropertiesChanged) => String::from("MediaPropertiesChanged"),
-            Some(PlayerEvent::TimelinePropertiesChanged) => {
+        let result = time::timeout(
+            Duration::from_secs(2), // Set the timeout duration to 2 seconds
+            async { self.player.lock().await.poll_next_event().await },
+        )
+        .await;
+
+        match result {
+            Ok(Some(PlayerEvent::PlaybackInfoChanged)) => String::from("PlaybackInfoChanged"),
+            Ok(Some(PlayerEvent::MediaPropertiesChanged)) => String::from("MediaPropertiesChanged"),
+            Ok(Some(PlayerEvent::TimelinePropertiesChanged)) => {
                 String::from("TimelinePropertiesChanged")
             }
-            None => String::from("None"),
+            Ok(None) => String::from("None"),
+            Err(_) => String::from("Timeout"), // Handle the timeout case
         }
     }
 

@@ -14,11 +14,18 @@ impl ClPlayerManager {
     }
 
     pub async fn poll_next_event(&mut self) -> String {
-        match self.player_manager.lock().await.poll_next_event().await {
-            Some(ManagerEvent::ActiveSessionChanged) => String::from("ActiveSessionChanged"),
-            Some(ManagerEvent::SystemSessionChanged) => String::from("SystemSessionChanged"),
-            Some(ManagerEvent::SessionsChanged) => String::from("SessionsChanged"),
-            None => String::from("None"),
+        let result = tokio::time::timeout(
+            tokio::time::Duration::from_secs(2), // Set the timeout duration to 2 seconds
+            async { self.player_manager.lock().await.poll_next_event().await },
+        )
+        .await;
+
+        match result {
+            Ok(Some(ManagerEvent::ActiveSessionChanged)) => String::from("ActiveSessionChanged"),
+            Ok(Some(ManagerEvent::SystemSessionChanged)) => String::from("SystemSessionChanged"),
+            Ok(Some(ManagerEvent::SessionsChanged)) => String::from("SessionsChanged"),
+            Ok(None) => String::from("None"),
+            Err(_) => String::from("Timeout"), // Handle the timeout case
         }
     }
     pub async fn get_active_session(&self) -> Option<ClPlayer> {
