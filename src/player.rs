@@ -3,7 +3,8 @@
 use std::time::Duration;
 
 use tokio::sync::mpsc::{unbounded_channel, UnboundedReceiver, UnboundedSender};
-
+use windows::Media::Control::GlobalSystemMediaTransportControlsSessionPlaybackStatus;
+// Ensure you have the tokio crate in your Cargo.toml
 use windows::{
     Foundation::{EventRegistrationToken, TypedEventHandler},
     Media::Control::GlobalSystemMediaTransportControlsSession,
@@ -100,24 +101,26 @@ impl Player {
     }
 
     pub async fn get_status(&self) -> Status {
-        let playback_info = self.session.GetPlaybackInfo();
+        let playback_info = self.session.GetPlaybackInfo().clone();
+        let playback_info_clone = playback_info.clone();
         let timeline_properties = self.session.GetTimelineProperties();
+
+        println!("{:?}", playback_info);
+        let playback_status = 'rt: {
+            if let Ok(playback_info) = playback_info.as_ref() {
+                if let Ok(status) = playback_info.PlaybackStatus() {
+                    break 'rt status;
+                }
+            }
+            GlobalSystemMediaTransportControlsSessionPlaybackStatus::Stopped
+        };
 
         Status {
             metadata: get_session_metadata(&self.session),
             capabilities: get_session_capabilities(&self.session),
-            status: 'rt: {
-                if let Ok(playback_info) = playback_info.as_ref() {
-                    if let Ok(status) = playback_info.PlaybackStatus() {
-                        println!("status in module{:?}", status);
-                        break 'rt status;
-                    }
-                }
-                windows::Media::Control::GlobalSystemMediaTransportControlsSessionPlaybackStatus(0)
-                //String::from("Unknown")
-            },
+            status: playback_status,
             is_loop: 'rt: {
-                if let Ok(playback_info) = playback_info.as_ref() {
+                if let Ok(playback_info) = playback_info_clone.as_ref() {
                     if let Ok(_mode) = playback_info.AutoRepeatMode() {
                         if let Ok(value) = _mode.Value() {
                             break 'rt autorepeat_to_string(value);
@@ -127,17 +130,17 @@ impl Player {
                 String::from("None")
             },
             shuffle: 'rt: {
-                if let Ok(playback_info) = playback_info.as_ref() {
+                if let Ok(playback_info) = playback_info_clone.as_ref() {
                     if let Ok(shuffle) = playback_info.IsShuffleActive() {
                         break 'rt shuffle.Value().unwrap_or(false);
                     }
                 }
                 false
             },
-            volume: -1f64,
+            volume: 0.0,
             elapsed: compute_position(
                 timeline_properties.ok().as_ref(),
-                playback_info.ok().as_ref(),
+                playback_info_clone.ok().as_ref(),
                 false,
             ),
             app: Some(self.aumid.clone()),

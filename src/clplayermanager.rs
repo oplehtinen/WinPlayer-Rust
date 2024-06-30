@@ -1,9 +1,8 @@
-use crate::clplayer;
+use super::clplayer::ClPlayer;
 use crate::playermanager::{ManagerEvent, PlayerManager};
 use std::sync::Arc;
 use tokio::sync::Mutex;
-
-use super::clplayer::ClPlayer;
+use windows::Media::Control::GlobalSystemMediaTransportControlsSessionPlaybackStatus;
 
 pub struct ClPlayerManager {
     player_manager: Arc<Mutex<PlayerManager>>,
@@ -52,16 +51,22 @@ impl ClPlayerManager {
         // loop through the sessions and figure out the active session
         println!("{:?}", sessions);
         for session in sessions {
-            println!("{:?}", session);
+            println!("Checking active session for: {:?}", session);
             let player = self.get_session(session.clone()).await;
             if let Some(player) = player {
+                println!("Player found for session: {:?}", session);
                 let status = player.get_status().await;
-                if status.status == windows::Media::Control::GlobalSystemMediaTransportControlsSessionPlaybackStatus(4) {
+                println!("{:?}", status.status);
+                if status.status == GlobalSystemMediaTransportControlsSessionPlaybackStatus(4) {
+                    println!("Active session found: {:?}", session);
                     return Some(session);
                 }
+                // println!("{:?}", status);
+            } else {
+                println!("No player found for session: {:?}", session);
             }
         }
-        None
+        return None;
         /* `std::string::String` value */
     }
 

@@ -10,16 +10,6 @@ pub struct ClPlayer {
     player: Arc<Mutex<Player>>,
 }
 
-// Remove the `impl Copy for ClPlayer` block
-
-impl Clone for ClPlayer {
-    fn clone(&self) -> Self {
-        ClPlayer {
-            player: self.player.clone(),
-        }
-    }
-}
-
 impl ClPlayer {
     pub fn new(player: Arc<Mutex<Player>>) -> Self {
         ClPlayer { player }
