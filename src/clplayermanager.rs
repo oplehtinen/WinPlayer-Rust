@@ -48,17 +48,11 @@ impl ClPlayerManager {
 
     pub async fn figure_out_active_session(&self) -> Option<String> {
         let sessions = self.get_sessions_keys().await;
-        // loop through the sessions and figure out the active session
-        println!("{:?}", sessions);
         for session in sessions {
-            println!("Checking active session for: {:?}", session);
             let player = self.get_session(session.clone()).await;
             if let Some(player) = player {
-                println!("Player found for session: {:?}", session);
                 let status = player.get_status().await;
-                println!("{:?}", status.status);
                 if status.status == GlobalSystemMediaTransportControlsSessionPlaybackStatus(4) {
-                    println!("Active session found: {:?}", session);
                     return Some(session);
                 }
                 // println!("{:?}", status);

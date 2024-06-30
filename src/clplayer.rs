@@ -1,11 +1,9 @@
-use std::sync::Arc;
-use tokio::sync::Mutex;
-
 use crate::{
-    cltypes::{ClPosition, ClStatus},
+    cltypes::{ClMetadata, ClPosition, ClStatus},
     player::{Player, PlayerEvent},
 };
-
+use std::sync::Arc;
+use tokio::sync::Mutex;
 pub struct ClPlayer {
     player: Arc<Mutex<Player>>,
 }
@@ -27,7 +25,13 @@ impl ClPlayer {
     }
 
     pub async fn get_status(&self) -> ClStatus {
-        ClStatus::from(self.player.lock().await.get_status().await)
+        let player_guard = Arc::clone(&self.player);
+        let status = {
+            let player_guard = player_guard.lock().await;
+            player_guard.get_status().await
+        };
+
+        ClStatus::from(status)
     }
 
     pub async fn get_aumid(&self) -> String {
@@ -55,6 +59,7 @@ impl ClPlayer {
     }
 
     pub async fn next(&self) -> bool {
+        println!("TRYING TO PLAY NEXT");
         self.player.lock().await.next().await
     }
 
