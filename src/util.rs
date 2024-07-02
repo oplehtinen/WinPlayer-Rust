@@ -66,8 +66,14 @@ pub fn compute_position(
 
         let end_time: f64 = 'rt2: {
             if let Ok(_end_time) = timeline_properties.EndTime() {
-                let _duration: Duration = _end_time.into();
-                break 'rt2 _duration.as_secs_f64();
+                if let Some(_safe_end) = _end_time.Duration.checked_mul(100) {
+                    // Convert to Duration and then to f64
+                    let _duration: Duration = _end_time.into();
+                    break 'rt2 _duration.as_secs_f64();
+                } else {
+                    // Handle overflow by setting to a maximum reasonable value
+                    break 'rt2 f64::MAX;
+                }
             }
             0f64
         };
@@ -253,8 +259,14 @@ pub fn get_session_metadata(
 
                     let end_time = 'rt: {
                         if let Ok(_end) = timeline_properties.EndTime() {
-                            let _duration: Duration = _end.into();
-                            break 'rt _duration.as_secs_f64();
+                            if let Some(_safe_end) = _end.Duration.checked_mul(100) {
+                                // Convert to Duration and then to f64
+                                let _duration: Duration = _end.into();
+                                break 'rt _duration.as_secs_f64();
+                            } else {
+                                // Handle overflow by setting to a maximum reasonable value
+                                break 'rt 0f64;
+                            }
                         }
                         0f64
                     };
