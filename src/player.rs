@@ -104,8 +104,6 @@ impl Player {
         let playback_info = self.session.GetPlaybackInfo().clone();
         let playback_info_clone = playback_info.clone();
         let timeline_properties = self.session.GetTimelineProperties();
-
-        println!("{:?}", playback_info);
         let playback_status = 'rt: {
             if let Ok(playback_info) = playback_info.as_ref() {
                 if let Ok(status) = playback_info.PlaybackStatus() {

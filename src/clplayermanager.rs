@@ -61,6 +61,10 @@ impl ClPlayerManager {
                 let status = player.get_status().await;
                 if status.status == GlobalSystemMediaTransportControlsSessionPlaybackStatus(4) {
                     return Some(session);
+                } else if status.status
+                    == GlobalSystemMediaTransportControlsSessionPlaybackStatus(5)
+                {
+                    return Some(session);
                 }
                 // println!("{:?}", status);
             } else {

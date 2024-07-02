@@ -1,5 +1,5 @@
 use crate::{
-    cltypes::{ClMetadata, ClPosition, ClStatus},
+    cltypes::{ClPosition, ClStatus},
     player::{Player, PlayerEvent},
 };
 use std::sync::Arc;
