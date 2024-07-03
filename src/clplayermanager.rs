@@ -55,22 +55,33 @@ impl ClPlayerManager {
 
     pub async fn figure_out_active_session(&self) -> Option<String> {
         let sessions = self.get_sessions_keys().await;
-        for session in sessions {
+
+        // First, check for any players that are playing
+        for session in &sessions {
             let player = self.get_session(session.clone()).await;
             if let Some(player) = player {
                 let status = player.get_status().await;
                 if status.status == GlobalSystemMediaTransportControlsSessionPlaybackStatus(4) {
-                    return Some(session);
-                } else if status.status
-                    == GlobalSystemMediaTransportControlsSessionPlaybackStatus(5)
-                {
-                    return Some(session);
+                    return Some(session.clone());
                 }
-                // println!("{:?}", status);
             } else {
                 println!("No player found for session: {:?}", session);
             }
         }
+
+        // If no players are playing, check for paused players
+        for session in sessions {
+            let player = self.get_session(session.clone()).await;
+            if let Some(player) = player {
+                let status = player.get_status().await;
+                if status.status == GlobalSystemMediaTransportControlsSessionPlaybackStatus(5) {
+                    return Some(session);
+                }
+            } else {
+                println!("No player found for session: {:?}", session);
+            }
+        }
+
         return None;
         /* `std::string::String` value */
     }
